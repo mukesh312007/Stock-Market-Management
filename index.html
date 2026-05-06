@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Analysis | Advanced Market Analysis</title>
+    <meta name="description" content="Track your favorite stocks, analyze market trends, and manage your watchlist with Stock Market Analysis.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">📈</span>
+            <h1>Stock Market Analysis</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="javascript:void(0)" onclick="showSection('home')">Home</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('dashboard')">Dashboard</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('watchlist')">Watchlist</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('portfolio')">Portfolio</a></li>
+
+        </ul>
+        <div class="nav-actions">
+            <button id="theme-toggle" class="btn-icon" aria-label="Toggle Theme">🌓</button>
+            <div id="auth-buttons">
+                <button type="button" onclick="showModal('login')" class="btn-secondary">Login</button>
+                <button type="button" onclick="showModal('register')" class="btn-primary">Sign Up</button>
+            </div>
+            <div id="user-profile" class="hidden">
+                <span id="user-name"></span>
+                <button type="button" onclick="logout()" class="btn-outline">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Home Section -->
+        <section id="home-section" class="active">
+            <div class="hero">
+                <h2>Master the Market with <span class="gradient-text">Real-Time Data</span></h2>
+                <p>Advanced stock tracking and analysis platform for the modern investor.</p>
+                <div class="search-hero">
+                    <input type="text" id="hero-search-input" placeholder="Enter Stock Name (e.g. AAPL, TSLA)">
+                    <button type="button" onclick="handleSearch('hero-search-input')" class="btn-primary">Search</button>
+                </div>
+                <div class="trending">
+                    <span>Trending:</span>
+                    <button class="chip" onclick="searchStock('AAPL')">AAPL</button>
+                    <button class="chip" onclick="searchStock('TSLA')">TSLA</button>
+                    <button class="chip" onclick="searchStock('MSFT')">MSFT</button>
+                    <button class="chip" onclick="searchStock('GOOGL')">GOOGL</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="hidden">
+            <div class="dashboard-header">
+                <h2>Stock Dashboard</h2>
+                <div class="search-bar">
+                    <input type="text" id="dash-search-input" placeholder="Search...">
+                    <button type="button" onclick="handleSearch('dash-search-input')" class="btn-primary">Search</button>
+                </div>
+            </div>
+            
+            <div id="stock-view" class="hidden">
+                <div class="stock-header">
+                    <div class="stock-title">
+                        <h3 id="stock-symbol-display">AAPL</h3>
+                        <p id="stock-price-display">₹150.00</p>
+                        <span id="stock-change-display" class="positive">+2.45%</span>
+                    </div>
+                    <div class="stock-actions">
+                        <button type="button" id="buy-stock-btn" class="btn-primary">Buy Stock</button>
+                        <button type="button" id="add-watchlist-btn" class="btn-outline">Add to Watchlist</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <p class="label">Open</p>
+                        <p id="stat-open" class="value">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">High</p>
+                        <p id="stat-high" class="value">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Low</p>
+                        <p id="stat-low" class="value">-</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="label">Volume</p>
+                        <p id="stat-volume" class="value">-</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="stockChart"></canvas>
+                </div>
+            </div>
+
+            <div id="no-stock-message" class="empty-state">
+                <p>Search for a ticker to see detailed analysis.</p>
+            </div>
+        </section>
+
+        <!-- Watchlist Section -->
+        <section id="watchlist-section" class="hidden">
+            <h2>Your Watchlist</h2>
+            <div id="watchlist-grid" class="watchlist-grid">
+                <!-- Watchlist items will be injected here -->
+            </div>
+            <div id="watchlist-empty" class="empty-state">
+                <p>Your watchlist is empty. Add stocks to track them.</p>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section id="portfolio-section" class="hidden">
+            <div class="section-header">
+                <h2>Your Portfolio</h2>
+                <div class="portfolio-summary">
+                    <div class="summary-item">
+                        <p>Total Value</p>
+                        <h3 id="portfolio-total-value">₹0.00</h3>
+                    </div>
+                    <div class="summary-item">
+                        <p>Total P/L</p>
+                        <h3 id="portfolio-total-pl">₹0.00</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Quantity</th>
+                            <th>Buy Price</th>
+                            <th>Current Price</th>
+                            <th>Value</th>
+                            <th>P/L</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="portfolio-list">
+                        <!-- Portfolio items will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="portfolio-empty" class="empty-state">
+                <p>Your portfolio is empty. Start buying stocks to build your wealth.</p>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Modals -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="login-form" class="auth-form">
+                <h3>Login</h3>
+                <input type="email" id="login-email" placeholder="Email">
+                <input type="password" id="login-pass" placeholder="Password">
+                <button type="button" onclick="handleLogin()" class="btn-primary w-full">Login</button>
+                <p>Don't have an account? <a href="javascript:void(0)" onclick="toggleAuthForm('register')">Register</a></p>
+            </div>
+            <div id="register-form" class="auth-form hidden">
+                <h3>Register</h3>
+                <input type="text" id="reg-user" placeholder="Username">
+                <input type="email" id="reg-email" placeholder="Email">
+                <input type="password" id="reg-pass" placeholder="Password">
+                <button type="button" onclick="handleRegister()" class="btn-primary w-full">Sign Up</button>
+                <p>Already have an account? <a href="javascript:void(0)" onclick="toggleAuthForm('login')">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Modal -->
+    <div id="buy-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeBuyModal()">&times;</span>
+            <h3>Buy <span id="buy-stock-symbol"></span></h3>
+            <p>Current Price: <span id="buy-stock-price"></span></p>
+            <div class="auth-form">
+                <input type="number" id="buy-quantity" placeholder="Quantity" min="1" value="1">
+                <p>Total Cost: <span id="buy-total-cost"></span></p>
+                <button type="button" onclick="confirmPurchase()" class="btn-primary w-full">Confirm Purchase</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sell Modal -->
+    <div id="sell-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeSellModal()">&times;</span>
+            <h3>Confirm Sell</h3>
+            <p>Are you sure you want to sell this stock holding from your portfolio?</p>
+            <div class="auth-form" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="confirm-sell-btn" class="btn-primary w-full" style="background: var(--accent-red)">Sell Stock</button>
+                <button type="button" onclick="closeSellModal()" class="btn-secondary w-full">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
